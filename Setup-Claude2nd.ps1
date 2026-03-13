@@ -1,16 +1,25 @@
 ﻿# Claude Code 2つ目のインスタンス 初回セットアップ
 # 管理者権限不要・ユーザー権限で実行可能
 
-# 1. ショートカット作成
+# 1. Claude 実行ファイルを探す
 Write-Host "ショートカットを作成中..."
-$pkg = Get-AppxPackage -Name "*Claude*" | Select-Object -First 1
-if (-not $pkg) {
-  Write-Error "Claude がインストールされていません。先に Claude をインストールしてください。"
-  exit 1
-}
 
-$claudeExe = Join-Path $pkg.InstallLocation "app\Claude.exe"
-$userData = "$env:USERPROFILE\AppData\Roaming\Claude2"
+# WindowsApps 内の exe は直接実行不可のため、実行エイリアスを優先して使用
+$claudeExe = $null
+$aliasPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\claude.exe"
+if (Test-Path $aliasPath) {
+  $claudeExe = $aliasPath
+} else {
+  $pkg = Get-AppxPackage -Name "*Claude*" | Select-Object -First 1
+  if (-not $pkg) {
+    Write-Error "Claude がインストールされていません。先に Claude をインストールしてください。"
+    exit 1
+  }
+  $claudeExe = Join-Path $pkg.InstallLocation "app\Claude.exe"
+}
+Write-Host "  -> 実行ファイル: $claudeExe"
+
+$userData = "$env:APPDATA\Claude2"
 $shortcutPath = "$env:USERPROFILE\Desktop\Claude 2nd.lnk"
 
 $shell = New-Object -ComObject WScript.Shell
