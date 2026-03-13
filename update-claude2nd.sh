@@ -21,9 +21,11 @@ find_claude_exe() {
       "$HOME/.local/bin/claude"
       "$HOME/Applications/claude"
     )
-    while IFS= read -r -d '' f; do
-      candidates+=("$f")
-    done < <(find "$HOME/Applications" /opt -maxdepth 3 -iname "claude*.AppImage" -print0 2>/dev/null || true)
+    if [[ -d "$HOME/Applications" ]] || [[ -d "/opt" ]]; then
+      while IFS= read -r f; do
+        [[ -n "$f" ]] && candidates+=("$f")
+      done < <(find "$HOME/Applications" /opt -maxdepth 3 -iname "claude*.AppImage" 2>/dev/null || true)
+    fi
   fi
   for exe in "${candidates[@]}"; do
     [[ -x "$exe" ]] && echo "$exe" && return 0
