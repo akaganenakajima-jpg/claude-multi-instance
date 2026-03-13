@@ -19,6 +19,6 @@ $userData = "$env:APPDATA\Claude2"
 $vbsPath  = "$env:APPDATA\Claude2nd-launcher.vbs"
 
 $vbsContent = "CreateObject(""WScript.Shell"").Run Chr(34) & """ + $claudeExe + """ & Chr(34) & "" --user-data-dir="" & Chr(34) & """ + $userData + """ & Chr(34), 0, False"
-Set-Content -Path $vbsPath -Value $vbsContent -Encoding UTF8
+[System.IO.File]::WriteAllText($vbsPath, $vbsContent, [System.Text.Encoding]::ASCII)
 
 Write-Host "更新完了: $claudeExe"

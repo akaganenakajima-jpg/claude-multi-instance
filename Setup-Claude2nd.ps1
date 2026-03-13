@@ -28,7 +28,7 @@ $shortcutPath = "$env:USERPROFILE\Desktop\Claude 2nd.lnk"
 
 # VBScript ランチャーを作成（コンソールウィンドウなしで起動するため）
 $vbsContent = "CreateObject(""WScript.Shell"").Run Chr(34) & """ + $claudeExe + """ & Chr(34) & "" --user-data-dir="" & Chr(34) & """ + $userData + """ & Chr(34), 0, False"
-Set-Content -Path $vbsPath -Value $vbsContent -Encoding UTF8
+[System.IO.File]::WriteAllText($vbsPath, $vbsContent, [System.Text.Encoding]::ASCII)
 Write-Host "  -> ランチャー作成完了: $vbsPath"
 
 # ショートカット: wscript.exe でランチャーを実行
