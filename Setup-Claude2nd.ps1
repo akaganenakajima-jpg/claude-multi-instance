@@ -26,8 +26,14 @@ $userData       = "$env:APPDATA\Claude2"
 $launcherPath   = "$env:APPDATA\Claude2nd-launcher.ps1"
 $shortcutPath   = "$env:USERPROFILE\Desktop\Claude 2nd.lnk"
 
-# PS1 ランチャーを作成
-$launcherContent = "Start-Process -FilePath `"$claudeExe`" -ArgumentList `"--user-data-dir=\`"$userData\`"`""
+# PS1 ランチャーを作成（UseShellExecute で MSIX 起動コンテキストを正しく設定）
+$launcherContent = @"
+`$psi = New-Object System.Diagnostics.ProcessStartInfo
+`$psi.FileName = "$claudeExe"
+`$psi.Arguments = '--user-data-dir="$userData"'
+`$psi.UseShellExecute = `$true
+[System.Diagnostics.Process]::Start(`$psi) | Out-Null
+"@
 [System.IO.File]::WriteAllText($launcherPath, $launcherContent, [System.Text.Encoding]::ASCII)
 Write-Host "  -> ランチャー作成完了: $launcherPath"
 

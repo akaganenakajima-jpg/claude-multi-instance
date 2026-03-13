@@ -18,7 +18,13 @@ if (-not $claudeExe) {
 $userData     = "$env:APPDATA\Claude2"
 $launcherPath = "$env:APPDATA\Claude2nd-launcher.ps1"
 
-$launcherContent = "Start-Process -FilePath `"$claudeExe`" -ArgumentList `"--user-data-dir=\`"$userData\`"`""
+$launcherContent = @"
+`$psi = New-Object System.Diagnostics.ProcessStartInfo
+`$psi.FileName = "$claudeExe"
+`$psi.Arguments = '--user-data-dir="$userData"'
+`$psi.UseShellExecute = `$true
+[System.Diagnostics.Process]::Start(`$psi) | Out-Null
+"@
 [System.IO.File]::WriteAllText($launcherPath, $launcherContent, [System.Text.Encoding]::ASCII)
 
 Write-Host "更新完了: $claudeExe"
