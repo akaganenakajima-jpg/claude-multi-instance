@@ -92,13 +92,12 @@ else
   mkdir -p "$DESKTOP_DIR"
   DESKTOP_FILE="$DESKTOP_DIR/claude-2nd.desktop"
 
-  # アイコンを1つ目インスタンスから流用
-  ICON=""
-  for p in /usr/share/icons/hicolor/256x256/apps/claude.png \
-            /usr/share/pixmaps/claude.png \
-            /opt/Claude/resources/app/icon.png; do
-    if [[ -f "$p" ]]; then ICON="$p"; break; fi
-  done
+  # アイコンをインストール
+  ICON_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/icons"
+  mkdir -p "$ICON_DIR"
+  ICON="$ICON_DIR/claude-2nd.svg"
+  cp "$(dirname "$0")/claude-2nd.svg" "$ICON"
+  echo "  -> アイコンインストール完了: $ICON"
 
   cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
@@ -108,8 +107,8 @@ Exec="$CLAUDE_EXE" --user-data-dir="$USER_DATA_DIR"
 Terminal=false
 Type=Application
 Categories=Development;
+Icon=$ICON
 EOF
-  [[ -n "$ICON" ]] && echo "Icon=$ICON" >> "$DESKTOP_FILE"
 
   chmod +x "$DESKTOP_FILE"
   update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
@@ -117,11 +116,10 @@ EOF
 
   # デスクトップにもコピー
   DESKTOP="$(xdg-user-dir DESKTOP 2>/dev/null || echo "$HOME/Desktop")"
-  if [[ -d "$DESKTOP" ]]; then
-    cp "$DESKTOP_FILE" "$DESKTOP/claude-2nd.desktop"
-    chmod +x "$DESKTOP/claude-2nd.desktop"
-    echo "  -> デスクトップにもコピー: $DESKTOP/claude-2nd.desktop"
-  fi
+  mkdir -p "$DESKTOP"
+  cp "$DESKTOP_FILE" "$DESKTOP/claude-2nd.desktop"
+  chmod +x "$DESKTOP/claude-2nd.desktop"
+  echo "  -> デスクトップにコピー: $DESKTOP/claude-2nd.desktop"
 
   # 自動更新スクリプトをインストール
   BIN_DIR="$HOME/.local/bin"
