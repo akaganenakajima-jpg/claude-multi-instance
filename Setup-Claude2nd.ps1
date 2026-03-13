@@ -22,20 +22,20 @@ if (-not $claudeExe) {
 }
 Write-Host "  -> 実行ファイル: $claudeExe"
 
-$userData     = "$env:APPDATA\Claude2"
-$vbsPath      = "$env:APPDATA\Claude2nd-launcher.vbs"
-$shortcutPath = "$env:USERPROFILE\Desktop\Claude 2nd.lnk"
+$userData       = "$env:APPDATA\Claude2"
+$launcherPath   = "$env:APPDATA\Claude2nd-launcher.ps1"
+$shortcutPath   = "$env:USERPROFILE\Desktop\Claude 2nd.lnk"
 
-# VBScript ランチャーを作成（コンソールウィンドウなしで起動するため）
-$vbsContent = "CreateObject(""WScript.Shell"").Run Chr(34) & """ + $claudeExe + """ & Chr(34) & "" --user-data-dir="" & Chr(34) & """ + $userData + """ & Chr(34), 0, False"
-[System.IO.File]::WriteAllText($vbsPath, $vbsContent, [System.Text.Encoding]::ASCII)
-Write-Host "  -> ランチャー作成完了: $vbsPath"
+# PS1 ランチャーを作成
+$launcherContent = "Start-Process -FilePath `"$claudeExe`" -ArgumentList `"--user-data-dir=\`"$userData\`"`""
+[System.IO.File]::WriteAllText($launcherPath, $launcherContent, [System.Text.Encoding]::ASCII)
+Write-Host "  -> ランチャー作成完了: $launcherPath"
 
-# ショートカット: wscript.exe でランチャーを実行
+# ショートカット: powershell.exe でランチャーを実行
 $shell = New-Object -ComObject WScript.Shell
 $shortcut = $shell.CreateShortcut($shortcutPath)
-$shortcut.TargetPath  = "wscript.exe"
-$shortcut.Arguments   = "`"$vbsPath`""
+$shortcut.TargetPath  = "powershell.exe"
+$shortcut.Arguments   = "-WindowStyle Hidden -ExecutionPolicy Bypass -File `"$launcherPath`""
 $shortcut.Description = "Claude Code 2nd Instance"
 $shortcut.Save()
 Write-Host "  -> ショートカット作成完了: $shortcutPath"

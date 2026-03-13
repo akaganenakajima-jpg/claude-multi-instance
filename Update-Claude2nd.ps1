@@ -15,10 +15,10 @@ if (-not $claudeExe) {
   $claudeExe = Join-Path $pkg.InstallLocation "app\Claude.exe"
 }
 
-$userData = "$env:APPDATA\Claude2"
-$vbsPath  = "$env:APPDATA\Claude2nd-launcher.vbs"
+$userData     = "$env:APPDATA\Claude2"
+$launcherPath = "$env:APPDATA\Claude2nd-launcher.ps1"
 
-$vbsContent = "CreateObject(""WScript.Shell"").Run Chr(34) & """ + $claudeExe + """ & Chr(34) & "" --user-data-dir="" & Chr(34) & """ + $userData + """ & Chr(34), 0, False"
-[System.IO.File]::WriteAllText($vbsPath, $vbsContent, [System.Text.Encoding]::ASCII)
+$launcherContent = "Start-Process -FilePath `"$claudeExe`" -ArgumentList `"--user-data-dir=\`"$userData\`"`""
+[System.IO.File]::WriteAllText($launcherPath, $launcherContent, [System.Text.Encoding]::ASCII)
 
 Write-Host "更新完了: $claudeExe"
