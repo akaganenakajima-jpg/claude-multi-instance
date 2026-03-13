@@ -1,4 +1,4 @@
-# Claude 2nd ショートカットを最新バージョンに自動更新
+﻿# Claude 2nd ショートカットを最新バージョンに自動更新
 $pkg = Get-AppxPackage -Name "*Claude*" | Select-Object -First 1
 if (-not $pkg) {
   Write-Error "Claude がインストールされていません"
