@@ -21,7 +21,7 @@ $userData     = "$env:APPDATA\Claude2"
 $launcherPath = "$env:APPDATA\Claude2nd-launcher.ps1"
 $shortcutPath = "$env:USERPROFILE\Desktop\Claude 2nd.lnk"
 
-# PS1 ランチャーを作成（IApplicationActivationManager 経由で MSIX を引数付き起動）
+# PS1 ランチャーを作成（C# 内で COM キャストして MSIX を引数付き起動）
 $launcherContent = @'
 Add-Type -TypeDefinition @"
 using System;
@@ -38,19 +38,24 @@ public interface IApplicationActivationManager {
                             IntPtr pItemArray, out uint processId);
 }
 [ComImport, Guid("45BA127D-10A8-46EA-8AB7-56EA9078943C")]
-public class ApplicationActivationManager {}
-"@ -ErrorAction SilentlyContinue
+public class ApplicationActivationManagerClass {}
+public static class AppLauncher {
+    public static void Launch(string aumid, string args) {
+        var mgr = new ApplicationActivationManagerClass() as IApplicationActivationManager;
+        uint pid;
+        mgr.ActivateApplication(aumid, args, 0, out pid);
+    }
+}
+"@
 
 PLACEHOLDER_AUMID
 PLACEHOLDER_USERDATA
 
-$mgr = [Activator]::CreateInstance([Type]::GetTypeFromCLSID([Guid]"45BA127D-10A8-46EA-8AB7-56EA9078943C")) -as [IApplicationActivationManager]
-$pid = [uint32]0
-$mgr.ActivateApplication($aumid, "--user-data-dir=`"$userData`"", 0, [ref]$pid)
+[AppLauncher]::Launch($aumid, "--user-data-dir=`"$userData`"")
 '@
 
 $launcherContent = $launcherContent `
-  -replace 'PLACEHOLDER_AUMID',   "`$aumid = '$aumid'" `
+  -replace 'PLACEHOLDER_AUMID',    "`$aumid = '$aumid'" `
   -replace 'PLACEHOLDER_USERDATA', "`$userData = `"$userData`""
 
 [System.IO.File]::WriteAllText($launcherPath, $launcherContent, [System.Text.Encoding]::ASCII)
